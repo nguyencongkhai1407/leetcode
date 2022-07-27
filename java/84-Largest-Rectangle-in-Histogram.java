@@ -1,40 +1,23 @@
 class Solution {
-
     public int largestRectangleArea(int[] heights) {
-        int n = heights.length;
-        int[] leftMin = new int[n];
-        Stack<Integer> left = new Stack<>();
-        Arrays.fill(leftMin, -1);
-        for (int i = heights.length - 1; i >= 0; i--) {
-            if (left.isEmpty() || heights[i] >= heights[left.peek()]) {
-                left.add(i);
-            } else {
-                while (!left.isEmpty() && heights[left.peek()] > heights[i]) {
-                    leftMin[left.peek()] = i;
-                    left.pop();
-                }
-                left.add(i);
+        Deque<int[]> stack = new ArrayDeque<>();
+        int maxArea = 0;
+        for(int i = 0; i < heights.length; i++)
+        {
+            int index = i;
+            while(stack.size() > 0 && stack.peek()[0] > heights[i]){
+                maxArea = Math.max(maxArea, (i - stack.peek()[1]) * stack.peek()[0]);
+                // Extend the index back
+                index = stack.pop()[1];
             }
+            // int[0] = height, int[1] = index
+            stack.push(new int[]{heights[i], index});
         }
-        int[] rightMin = new int[n];
-        Stack<Integer> right = new Stack<>();
-        Arrays.fill(rightMin, heights.length);
-        for (int i = 0; i < heights.length; i++) {
-            if (right.isEmpty() || heights[i] >= heights[right.peek()]) {
-                right.add(i);
-            } else {
-                while (!right.isEmpty() && heights[right.peek()] > heights[i]) {
-                    rightMin[right.peek()] = i;
-                    right.pop();
-                }
-                right.add(i);
-            }
+        // calculate the area of any rectangle left in stack
+        while(stack.size() > 0){
+            maxArea = Math.max(maxArea, (heights.length - stack.peek()[1]) * stack.pop()[0]);
         }
-        // System.out.println()
-        int area = Integer.MIN_VALUE;
-        for (int i = 0; i < heights.length; i++) {
-            area = Math.max(area, heights[i] * (rightMin[i] - leftMin[i] - 1));
-        }
-        return area;
+        
+        return maxArea;
     }
 }
